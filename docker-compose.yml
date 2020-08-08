@@ -1,0 +1,9 @@
+version: "3.0"
+services:
+  postgres96:
+    image: postgres:9.6
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: admin@123
+      POSTGRES_USER: postgres
