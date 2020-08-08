@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.ahmetserdargeze</groupId>
-    <artifactId>templateproject</artifactId>
+    <artifactId>migrosassesment</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>templateproject</name>
     <description>Template Project</description>
