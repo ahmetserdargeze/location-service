@@ -1,14 +1,12 @@
-package com.ahmetserdargeze.migrosassesment.solution1.data.entity;
+package com.ahmetserdargeze.migrosassesment.solution1.model.data.entity;
 
 import com.vividsolutions.jts.geom.Point;
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.sql.Timestamp;
 import java.util.UUID;
 
 @Entity

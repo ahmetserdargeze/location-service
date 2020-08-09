@@ -1,6 +1,6 @@
-package com.ahmetserdargeze.migrosassesment.solution1.data.repository;
+package com.ahmetserdargeze.migrosassesment.solution1.model.data.repository;
 
-import com.ahmetserdargeze.migrosassesment.solution1.data.entity.StoresCordinates;
+import com.ahmetserdargeze.migrosassesment.solution1.model.data.entity.StoresCordinates;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 

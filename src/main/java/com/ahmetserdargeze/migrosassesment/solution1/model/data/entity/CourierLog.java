@@ -1,4 +1,4 @@
-package com.ahmetserdargeze.migrosassesment.solution1.data.entity;
+package com.ahmetserdargeze.migrosassesment.solution1.model.data.entity;
 
 
 
