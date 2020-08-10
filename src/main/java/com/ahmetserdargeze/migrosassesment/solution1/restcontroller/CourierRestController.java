@@ -4,10 +4,7 @@ import com.ahmetserdargeze.migrosassesment.solution1.model.response.BaseResponse
 import com.ahmetserdargeze.migrosassesment.solution1.model.response.CourierLogSaveResponse;
 import com.ahmetserdargeze.migrosassesment.solution1.service.contract.CourierService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.util.Date;
@@ -24,9 +21,14 @@ public class CourierRestController {
     @ResponseBody
     BaseResponse all(@RequestParam Timestamp logTime, @RequestParam long courierId , @RequestParam double lng , @RequestParam double lat ) {
         //logTime parameter must be yyyy-mm-dd hh:mm:ss format
-
         System.out.println("assdasdasd");
         return courierService.saveCourierLog(logTime,courierId,lng,lat);
+    }
+
+    @GetMapping("/getTotalTravelDistance")
+    @ResponseBody
+    BaseResponse all(@RequestParam long courierId) {
+        return courierService.getTotalTravelDistance(courierId);
     }
 
 }

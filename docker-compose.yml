@@ -7,3 +7,11 @@ services:
     environment:
       POSTGRES_PASSWORD: admin@123
       POSTGRES_USER: postgres
+
+
+
+        #    command: >
+        #      bash -c "apt-get update
+        #      && apt-get -y install sudo
+        #      && apt-get -y install software-properties-common
+        #      && apt-get -y install postgis postgresql-9.6-postgis-2.3"

@@ -6,6 +6,7 @@ import java.util.Date;
 
 public interface CourierService {
     BaseResponse saveCourierLog(Date logTime, long courierId, double lng, double lat);
+    BaseResponse getTotalTravelDistance(long courierId);
 
 
 }

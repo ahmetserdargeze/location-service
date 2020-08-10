@@ -1,4 +1,4 @@
-package com.ahmetserdargeze.migrosassesment.solution1.model.data.entity;
+package com.ahmetserdargeze.migrosassesment.solution1.data.entity;
 
 import com.vividsolutions.jts.geom.Point;
 import org.hibernate.annotations.GenericGenerator;
