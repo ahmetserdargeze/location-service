@@ -4,18 +4,16 @@ import java.util.List;
 
 public class CourierObservableData {
     private long courierId;
-    private double nearestMigrosDistance;
     private String nearestMigrosName;
+    private double nearestMigrosDistance;
 
     public CourierObservableData() {
     }
 
-    public CourierObservableData(long courierId, List<Object[]> storeDistances) {
+    public CourierObservableData(long courierId, String nearestMigrosName, double nearestMigrosDistance) {
         this.courierId = courierId;
-        if (storeDistances != null && !storeDistances.isEmpty()) {
-            this.nearestMigrosName = (String) storeDistances.get(0)[0];
-            this.nearestMigrosDistance = (Double) storeDistances.get(0)[1];
-        }
+        this.nearestMigrosName = nearestMigrosName;
+        this.nearestMigrosDistance = nearestMigrosDistance;
     }
 
     public long getCourierId() {

@@ -5,14 +5,13 @@ import com.ahmetserdargeze.migrosassesment.solution1.data.entity.CourierNearestS
 import com.ahmetserdargeze.migrosassesment.solution1.data.repository.CourierLogRepository;
 import com.ahmetserdargeze.migrosassesment.solution1.data.repository.CourierRepository;
 import com.ahmetserdargeze.migrosassesment.solution1.data.repository.StoreCordinatesRepository;
-
+import com.ahmetserdargeze.migrosassesment.solution1.model.observer.courier.CourierObservable;
+import com.ahmetserdargeze.migrosassesment.solution1.model.observer.courier.CourierObservableData;
+import com.ahmetserdargeze.migrosassesment.solution1.model.observer.courier.MobileObserver;
 import com.ahmetserdargeze.migrosassesment.solution1.model.response.BaseResponse;
 import com.ahmetserdargeze.migrosassesment.solution1.model.response.CourierLogSaveResponse;
 import com.ahmetserdargeze.migrosassesment.solution1.model.response.TotalTravelDistanceResponse;
 import com.ahmetserdargeze.migrosassesment.solution1.service.contract.CourierService;
-import com.ahmetserdargeze.migrosassesment.solution1.model.observer.courier.CourierObservable;
-import com.ahmetserdargeze.migrosassesment.solution1.model.observer.courier.MobileObserver;
-import com.ahmetserdargeze.migrosassesment.solution1.model.observer.courier.CourierObservableData;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,24 +44,40 @@ public class CourierServiceImpl extends BaseServiceImpl implements CourierServic
             CourierLog courierLog = new CourierLog(
                     UUID.randomUUID(),
                     courierId,
-                    new Timestamp(new Date().getTime()),
-                    factory.createPoint(new Coordinate(lng, lat))
+                    new Timestamp(logTime.getTime()),
+                    factory.createPoint(new Coordinate(lng, lat)),
+                    false
             );
-            courierLogRepository.save(courierLog);
-            logger.info("CourierLog Insert Success");
-//            List<Object[]> storeDistances = storeCordinatesRepository.getDİstanceFromOurStores(lng,lat);
-            List<CourierNearestStores> courier100MNearestStoresInLast1Minute = courierLogRepository.test();
-//            courierObservable.setObservableData(new CourierObservableData(courierId,storeDistances));
-//            courierObservable.notifyObserver();
 
-            return new CourierLogSaveResponse(HttpStatus.OK, "Courier log insert with success", true, courierId, "TEST", 0D);
+            insertCourierLog(courierLog);
+            List<CourierNearestStores> courier100MNearestStoresInLast1Minute = courierLogRepository.findCourier100MNearestStoresInLast1Minute(courierId);
+            if (!courier100MNearestStoresInLast1Minute.isEmpty()) {
+                var wrapper = new Object(){ boolean isNotNotify; };
 
+                CourierNearestStores lastLog = courier100MNearestStoresInLast1Minute.stream()
+                        .filter(courierNearestStores -> courierLog.getCourierLogId().equals(courierNearestStores.getCourierLogId()))
+                        .findAny()
+                        .orElse(null);
+                courier100MNearestStoresInLast1Minute.forEach(courierNearestStores -> {
+                    if (lastLog.getStoreName().equals(courierNearestStores.getStoreName()) && !courierNearestStores.getCourierLogId().equals(courierLog.getCourierLogId()) && courierNearestStores.isNotify()) {
+                        wrapper.isNotNotify =  true;
+                    }
+                });
+
+                if (!wrapper.isNotNotify){
+                    courierObservable.setObservableData(new CourierObservableData(courierId, lastLog.getStoreName(),lastLog.getDistance()));
+                    courierObservable.notifyObserver();
+                    courierLog.setNotify(true);
+                    courierLogRepository.save(courierLog);
+                }
+            }
+            return new CourierLogSaveResponse(HttpStatus.OK, "Courier log insert with success", true, courierLog);
         } catch (Exception e) {
             StringBuilder errorMessage = new StringBuilder();
             errorMessage.append("CourierLog Insert Error:");
             errorMessage.append(e.getMessage());
-                logger.error(errorMessage.toString());
-            logger.error("sad",e);
+            logger.error(errorMessage.toString());
+            logger.error("sad", e);
             return new BaseResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Courier log insert with error", false);
         }
     }
@@ -93,6 +108,19 @@ public class CourierServiceImpl extends BaseServiceImpl implements CourierServic
             errorMessage.append(e.getMessage());
             logger.error(errorMessage.toString());
             return new BaseResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Courier total distance get with error", false);
+        }
+
+    }
+
+
+    private void insertCourierLog(CourierLog courierLog) {
+        try {
+            courierLogRepository.save(courierLog);
+            logger.info("CourierLog Insert Success");
+
+        } catch (Exception e) {
+            logger.error("CourierLog Insert Error", e);
+
         }
 
     }

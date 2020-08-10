@@ -1,7 +1,6 @@
 package com.ahmetserdargeze.migrosassesment.solution1.data.entity;
 
 import javax.persistence.Column;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;
 
@@ -18,11 +17,15 @@ public class CourierNearestStores {
     @Column(name = "activate_date")
     private Date activateDate;
 
-    public CourierNearestStores(String storeName, UUID courierLogId, Double distance, Date activateDate) {
+    @Column(name = "is_notify")
+    private boolean isNotify;
+
+    public CourierNearestStores(String storeName, UUID courierLogId, Double distance, Date activateDate, boolean isNotify) {
         this.storeName = storeName;
         this.courierLogId = courierLogId;
         this.distance = distance;
         this.activateDate = activateDate;
+        this.isNotify = isNotify;
     }
 
     public CourierNearestStores() {
@@ -58,5 +61,13 @@ public class CourierNearestStores {
 
     public void setActivateDate(Date activateDate) {
         this.activateDate = activateDate;
+    }
+
+    public boolean isNotify() {
+        return isNotify;
+    }
+
+    public void setNotify(boolean notify) {
+        isNotify = notify;
     }
 }

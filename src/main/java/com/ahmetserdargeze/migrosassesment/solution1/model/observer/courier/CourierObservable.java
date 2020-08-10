@@ -2,7 +2,6 @@ package com.ahmetserdargeze.migrosassesment.solution1.model.observer.courier;
 
 import com.ahmetserdargeze.migrosassesment.solution1.model.observer.Observable;
 import com.ahmetserdargeze.migrosassesment.solution1.model.observer.Observer;
-import com.ahmetserdargeze.migrosassesment.solution1.model.observer.courier.CourierObservableData;
 
 import java.util.ArrayList;
 import java.util.List;
