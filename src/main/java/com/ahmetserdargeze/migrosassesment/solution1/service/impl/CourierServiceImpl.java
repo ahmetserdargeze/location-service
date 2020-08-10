@@ -1,6 +1,7 @@
 package com.ahmetserdargeze.migrosassesment.solution1.service.impl;
 
 import com.ahmetserdargeze.migrosassesment.solution1.data.entity.CourierLog;
+import com.ahmetserdargeze.migrosassesment.solution1.data.entity.CourierNearestStores;
 import com.ahmetserdargeze.migrosassesment.solution1.data.repository.CourierLogRepository;
 import com.ahmetserdargeze.migrosassesment.solution1.data.repository.CourierRepository;
 import com.ahmetserdargeze.migrosassesment.solution1.data.repository.StoreCordinatesRepository;
@@ -49,8 +50,8 @@ public class CourierServiceImpl extends BaseServiceImpl implements CourierServic
             );
             courierLogRepository.save(courierLog);
             logger.info("CourierLog Insert Success");
-            List<Object[]> storeDistances = storeCordinatesRepository.getDİstanceFromOurStores(lng,lat);
-            List<Object[]> courier100MNearestStoresInLast1Minute = courierLogRepository.getCourierDistanceLower100MetersToStoresLast1Minutes(courierId);
+//            List<Object[]> storeDistances = storeCordinatesRepository.getDİstanceFromOurStores(lng,lat);
+            List<CourierNearestStores> courier100MNearestStoresInLast1Minute = courierLogRepository.test();
 //            courierObservable.setObservableData(new CourierObservableData(courierId,storeDistances));
 //            courierObservable.notifyObserver();
 
@@ -60,7 +61,8 @@ public class CourierServiceImpl extends BaseServiceImpl implements CourierServic
             StringBuilder errorMessage = new StringBuilder();
             errorMessage.append("CourierLog Insert Error:");
             errorMessage.append(e.getMessage());
-            logger.error(errorMessage.toString());
+                logger.error(errorMessage.toString());
+            logger.error("sad",e);
             return new BaseResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Courier log insert with error", false);
         }
     }

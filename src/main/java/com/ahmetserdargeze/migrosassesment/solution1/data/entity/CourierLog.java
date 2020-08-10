@@ -1,16 +1,33 @@
 package com.ahmetserdargeze.migrosassesment.solution1.data.entity;
 
 
-
 import com.vividsolutions.jts.geom.Point;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.UUID;
 
-@Entity
+@Entity(name = "CourierLog")
+@SqlResultSetMapping(
+        name = "CourierLogNearestStoresMapping",
+        classes = @ConstructorResult(
+                targetClass = CourierNearestStores.class,
+                columns = {@ColumnResult(name = "store_name"),
+                        @ColumnResult(name = "courier_log_id", type = UUID.class),
+                        @ColumnResult(name = "distance", type = Double.class),
+                        @ColumnResult(name = "activate_date", type = Date.class)
+                }))
+@NamedNativeQuery(
+        name = "CourierLog.test",
+        query = "select stores_cordinates.store_name,courier_log.courier_log_id,ST_Distance(stores_cordinates.location, courier_log.geom_location) as distance,courier_log.activate_date\n" +
+                "from stores_cordinates\n" +
+                "inner join  courier_log\n" +
+                "on  ST_Distance(stores_cordinates.location, courier_log.geom_location) <=100 and  courier_log.activate_date >current_timestamp - interval '100000 minutes'   order by courier_log.activate_date desc ;\n",
+        resultSetMapping = "CourierLogNearestStoresMapping")
+
 @Table(name = "courier_log")
 public class CourierLog {
 
