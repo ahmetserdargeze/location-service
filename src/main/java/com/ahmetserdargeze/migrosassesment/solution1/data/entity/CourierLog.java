@@ -2,9 +2,9 @@ package com.ahmetserdargeze.migrosassesment.solution1.data.entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.vividsolutions.jts.geom.Point;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
+import org.locationtech.jts.geom.Point;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -46,8 +46,8 @@ public class CourierLog {
     private Timestamp activateDate;
 
     @Column(name = "geom_location")
-    @Type(type = "jts_geometry")
-    private Point geomLocation;
+//    @Type(type = "jts_geometry")
+    private org.locationtech.jts.geom.Point geomLocation;
 
 
     @Column(name = "isNotify")
@@ -56,7 +56,7 @@ public class CourierLog {
     public CourierLog() {
     }
 
-    public CourierLog(UUID courierLogId, long courierId, Timestamp activateDate, Point geomLocation, boolean isNotify) {
+    public CourierLog(UUID courierLogId, long courierId, Timestamp activateDate, org.locationtech.jts.geom.Point geomLocation, boolean isNotify) {
         this.courierLogId = courierLogId;
         this.courierId = courierId;
         this.activateDate = activateDate;

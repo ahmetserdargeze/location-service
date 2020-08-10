@@ -12,13 +12,16 @@ import com.ahmetserdargeze.migrosassesment.solution1.model.response.BaseResponse
 import com.ahmetserdargeze.migrosassesment.solution1.model.response.CourierLogSaveResponse;
 import com.ahmetserdargeze.migrosassesment.solution1.model.response.TotalTravelDistanceResponse;
 import com.ahmetserdargeze.migrosassesment.solution1.service.contract.CourierService;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -35,51 +38,47 @@ public class CourierServiceImpl extends BaseServiceImpl implements CourierServic
 
 
     @Override
-    public BaseResponse saveCourierLog(Date logTime, long courierId, double lng, double lat) {
+    @Transactional
+    public BaseResponse saveCourierLog(Date logTime, long courierId, double lng, double lat) throws ParseException {
         CourierObservable courierObservable = new CourierObservable();
         MobileObserver courierClient = new MobileObserver();
         courierObservable.addObserver(courierClient);
-        GeometryFactory factory = new GeometryFactory();
-        try {
-            CourierLog courierLog = new CourierLog(
-                    UUID.randomUUID(),
-                    courierId,
-                    new Timestamp(logTime.getTime()),
-                    factory.createPoint(new Coordinate(lng, lat)),
-                    false
-            );
+        CourierLog courierLog = new CourierLog(
+                UUID.randomUUID(),
+                courierId,
+                new Timestamp(logTime.getTime()),
+                getPointFromLatAndLong(lat, lng),
+                false
+        );
 
-            insertCourierLog(courierLog);
-            List<CourierNearestStores> courier100MNearestStoresInLast1Minute = courierLogRepository.findCourier100MNearestStoresInLast1Minute(courierId);
+        boolean insertResult = insertCourierLog(courierLog);
+        if (insertResult) {
+            List<CourierNearestStores> courier100MNearestStoresInLast1Minute = getCourier100MNearestStoresInLast1Minute(courierId);
             if (!courier100MNearestStoresInLast1Minute.isEmpty()) {
-                var wrapper = new Object(){ boolean isNotNotify; };
-
+                var wrapper = new Object() {
+                    boolean isNotNotify;
+                };
                 CourierNearestStores lastLog = courier100MNearestStoresInLast1Minute.stream()
                         .filter(courierNearestStores -> courierLog.getCourierLogId().equals(courierNearestStores.getCourierLogId()))
                         .findAny()
                         .orElse(null);
                 courier100MNearestStoresInLast1Minute.forEach(courierNearestStores -> {
                     if (lastLog.getStoreName().equals(courierNearestStores.getStoreName()) && !courierNearestStores.getCourierLogId().equals(courierLog.getCourierLogId()) && courierNearestStores.isNotify()) {
-                        wrapper.isNotNotify =  true;
+                        wrapper.isNotNotify = true;
                     }
                 });
-
-                if (!wrapper.isNotNotify){
-                    courierObservable.setObservableData(new CourierObservableData(courierId, lastLog.getStoreName(),lastLog.getDistance()));
+                if (!wrapper.isNotNotify) {
+                    courierObservable.setObservableData(new CourierObservableData(courierId, lastLog.getStoreName(), lastLog.getDistance()));
                     courierObservable.notifyObserver();
                     courierLog.setNotify(true);
-                    courierLogRepository.save(courierLog);
+                    insertCourierLog(courierLog);
                 }
             }
             return new CourierLogSaveResponse(HttpStatus.OK, "Courier log insert with success", true, courierLog);
-        } catch (Exception e) {
-            StringBuilder errorMessage = new StringBuilder();
-            errorMessage.append("CourierLog Insert Error:");
-            errorMessage.append(e.getMessage());
-            logger.error(errorMessage.toString());
-            logger.error("sad", e);
+        } else {
             return new BaseResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Courier log insert with error", false);
         }
+
     }
 
     @Override
@@ -113,16 +112,42 @@ public class CourierServiceImpl extends BaseServiceImpl implements CourierServic
     }
 
 
-    private void insertCourierLog(CourierLog courierLog) {
+    private boolean insertCourierLog(CourierLog courierLog) {
         try {
             courierLogRepository.save(courierLog);
             logger.info("CourierLog Insert Success");
+            return true;
 
         } catch (Exception e) {
             logger.error("CourierLog Insert Error", e);
+            return false;
 
         }
 
     }
+
+    private Point getPointFromLatAndLong(double lat, double lng) throws ParseException {
+        StringBuilder builder = new StringBuilder();
+        builder.append("POINT(");
+        builder.append(lng);
+        builder.append(" ");
+        builder.append(lat);
+        builder.append(")");
+        return (Point) new WKTReader().read(builder.toString());
+
+
+    }
+
+    List<CourierNearestStores> getCourier100MNearestStoresInLast1Minute(long courierId){
+        try {
+            return courierLogRepository.findCourier100MNearestStoresInLast1Minute(courierId);
+        }catch (Exception e){
+            logger.error("User Log Store Distance Join Failed Return Empty List");
+            return new ArrayList<>();
+        }
+
+
+    }
+
 
 }
