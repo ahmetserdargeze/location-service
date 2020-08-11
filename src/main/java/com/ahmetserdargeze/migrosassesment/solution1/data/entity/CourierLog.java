@@ -24,10 +24,14 @@ import java.util.UUID;
                 }))
 @NamedNativeQuery(
         name = "CourierLog.findCourier100MNearestStoresInLast1Minute",
-        query = "select stores_cordinates.store_name,courier_log.courier_log_id,ST_Distance(stores_cordinates.location, courier_log.geom_location) as distance,courier_log.activate_date , courier_log.is_notify\n" +
-                "from stores_cordinates\n" +
-                "inner join  courier_log\n" +
-                "on  ST_Distance(stores_cordinates.location, courier_log.geom_location) <=100 and courier_log.courier_id =:courierId and  courier_log.activate_date >current_timestamp - interval '1 minutes'   order by courier_log.activate_date desc ;\n",
+        query = " select stores_cordinates.store_name,courier_log.courier_log_id,ST_Distance(stores_cordinates.location, courier_log.geom_location) as distance,courier_log.activate_date , courier_log.is_notify\n" +
+                " from stores_cordinates\n" +
+                " inner join  courier_log\n" +
+                " on  ST_Distance(stores_cordinates.location, courier_log.geom_location) <=100 " +
+                " and courier_log.courier_id =:courierId " +
+"                 and  courier_log.activate_date <= (select  activate_date from  courier_log where  courier_log.courier_log_id =:courierLogId) \n" +
+                " and  courier_log.activate_date >= (select   activate_date- interval '1 minutes' from  courier_log where  courier_log.courier_log_id =:courierLogId) \n"+
+                " order by courier_log.activate_date desc ;\n",
         resultSetMapping = "CourierLogNearestStoresMapping")
 
 @Table(name = "courier_log")
@@ -50,7 +54,7 @@ public class CourierLog {
     private org.locationtech.jts.geom.Point geomLocation;
 
 
-    @Column(name = "isNotify")
+    @Column(name = "is_notify")
     private boolean isNotify;
 
     public CourierLog() {

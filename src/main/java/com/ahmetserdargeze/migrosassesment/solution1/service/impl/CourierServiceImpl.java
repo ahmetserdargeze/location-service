@@ -53,7 +53,7 @@ public class CourierServiceImpl extends BaseServiceImpl implements CourierServic
 
         boolean insertResult = insertCourierLog(courierLog);
         if (insertResult) {
-            List<CourierNearestStores> courier100MNearestStoresInLast1Minute = getCourier100MNearestStoresInLast1Minute(courierId);
+            List<CourierNearestStores> courier100MNearestStoresInLast1Minute = getCourier100MNearestStoresInLast1Minute(courierId,courierLog.getCourierLogId());
             if (!courier100MNearestStoresInLast1Minute.isEmpty()) {
                 var wrapper = new Object() {
                     boolean isNotNotify;
@@ -138,9 +138,9 @@ public class CourierServiceImpl extends BaseServiceImpl implements CourierServic
 
     }
 
-    List<CourierNearestStores> getCourier100MNearestStoresInLast1Minute(long courierId){
+    private List<CourierNearestStores> getCourier100MNearestStoresInLast1Minute(long courierId,UUID courierLogId){
         try {
-            return courierLogRepository.findCourier100MNearestStoresInLast1Minute(courierId);
+            return courierLogRepository.findCourier100MNearestStoresInLast1Minute(courierId,courierLogId);
         }catch (Exception e){
             logger.error("User Log Store Distance Join Failed Return Empty List");
             return new ArrayList<>();

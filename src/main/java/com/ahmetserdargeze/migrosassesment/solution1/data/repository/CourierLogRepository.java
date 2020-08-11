@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.UUID;
 
 
 public interface CourierLogRepository extends JpaRepository<CourierLog, Long> {
@@ -15,7 +16,7 @@ public interface CourierLogRepository extends JpaRepository<CourierLog, Long> {
     List<Object[]> getCourierTotalDistanceWithId(long courierId);
 
     @Query(nativeQuery = true)
-    List<CourierNearestStores> findCourier100MNearestStoresInLast1Minute(@Param("courierId") long courierId);
+    List<CourierNearestStores> findCourier100MNearestStoresInLast1Minute(@Param("courierId") long courierId, @Param("courierLogId") UUID courierLogId);
 }
 
 
