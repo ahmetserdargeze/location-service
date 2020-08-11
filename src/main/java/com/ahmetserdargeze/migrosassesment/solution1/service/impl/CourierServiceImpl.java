@@ -5,6 +5,7 @@ import com.ahmetserdargeze.migrosassesment.solution1.data.entity.CourierNearestS
 import com.ahmetserdargeze.migrosassesment.solution1.data.repository.CourierLogRepository;
 import com.ahmetserdargeze.migrosassesment.solution1.data.repository.CourierRepository;
 import com.ahmetserdargeze.migrosassesment.solution1.data.repository.StoreCordinatesRepository;
+import com.ahmetserdargeze.migrosassesment.solution1.model.input.CreateCourierLogInput;
 import com.ahmetserdargeze.migrosassesment.solution1.model.observer.courier.CourierObservable;
 import com.ahmetserdargeze.migrosassesment.solution1.model.observer.courier.CourierObservableData;
 import com.ahmetserdargeze.migrosassesment.solution1.model.observer.courier.MobileObserver;
@@ -39,21 +40,21 @@ public class CourierServiceImpl extends BaseServiceImpl implements CourierServic
 
     @Override
     @Transactional
-    public BaseResponse saveCourierLog(Date logTime, long courierId, double lng, double lat) throws ParseException {
+    public BaseResponse saveCourierLog(CreateCourierLogInput createCourierLogInput) throws ParseException {
         CourierObservable courierObservable = new CourierObservable();
         MobileObserver courierClient = new MobileObserver();
         courierObservable.addObserver(courierClient);
         CourierLog courierLog = new CourierLog(
                 UUID.randomUUID(),
-                courierId,
-                new Timestamp(logTime.getTime()),
-                getPointFromLatAndLong(lat, lng),
+                createCourierLogInput.getCourierId(),
+                new Timestamp(createCourierLogInput.getLogTime().getTime()),
+                getPointFromLatAndLong(createCourierLogInput.getLat(), createCourierLogInput.getLng()),
                 false
         );
 
         boolean insertResult = insertCourierLog(courierLog);
         if (insertResult) {
-            List<CourierNearestStores> courier100MNearestStoresInLast1Minute = getCourier100MNearestStoresInLast1Minute(courierId,courierLog.getCourierLogId());
+            List<CourierNearestStores> courier100MNearestStoresInLast1Minute = getCourier100MNearestStoresInLast1Minute(courierLog.getCourierId(),courierLog.getCourierLogId());
             if (!courier100MNearestStoresInLast1Minute.isEmpty()) {
                 var wrapper = new Object() {
                     boolean isNotNotify;
@@ -68,7 +69,7 @@ public class CourierServiceImpl extends BaseServiceImpl implements CourierServic
                     }
                 });
                 if (!wrapper.isNotNotify) {
-                    courierObservable.setObservableData(new CourierObservableData(courierId, lastLog.getStoreName(), lastLog.getDistance()));
+                    courierObservable.setObservableData(new CourierObservableData(courierLog.getCourierId(), lastLog.getStoreName(), lastLog.getDistance()));
                     courierObservable.notifyObserver();
                     courierLog.setNotify(true);
                     insertCourierLog(courierLog);
