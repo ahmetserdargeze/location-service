@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -75,6 +74,7 @@ public class CourierServiceImpl extends BaseServiceImpl implements CourierServic
                     insertCourierLog(courierLog);
                 }
             }
+            courierLog.setGeomLocation(null);
             return new CourierLogSaveResponse(HttpStatus.OK, "Courier log insert with success", true, courierLog);
         } else {
             return new BaseResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Courier log insert with error", false);
@@ -141,7 +141,9 @@ public class CourierServiceImpl extends BaseServiceImpl implements CourierServic
 
     private List<CourierNearestStores> getCourier100MNearestStoresInLast1Minute(long courierId,UUID courierLogId){
         try {
-            return courierLogRepository.findCourier100MNearestStoresInLast1Minute(courierId,courierLogId);
+//            return courierLogRepository.findCourier100MNearestStoresInLast1Minute(courierId,courierLogId);
+            return new ArrayList<>();
+
         }catch (Exception e){
             logger.error("User Log Store Distance Join Failed Return Empty List");
             return new ArrayList<>();

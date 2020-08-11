@@ -1,24 +1,24 @@
 version: "3.0"
 services:
-#  postgres96:
-#    image: postgres:9.6
-#    ports:
-#      - "5432:5432"
-#    environment:
-#      POSTGRES_PASSWORD: admin@123
-#      POSTGRES_USER: postgres
   pgdb:
     image: mdillon/postgis
     ports:
-    - "5432:5432"
+      - "5432:5432"
     environment:
        POSTGRES_DB: postgres
        POSTGRES_USER: postgres
        POSTGRES_PASS: admin@123
-        #restart: unless-stopped
-
-        #    command: >
-        #      bash -c "apt-get update
-        #      && apt-get -y install sudo
-        #      && apt-get -y install software-properties-common
-        #      && apt-get -y install postgis postgresql-9.6-postgis-2.3"
+#  springbootapp:
+#    image: ahmedgeze/location-service:1.0
+#    container_name: springbootapp
+#    expose:
+#      - 8080
+#    ports:
+#      - 8080:8080
+#    restart: unless-stopped
+#    depends_on:
+#      - pgdb
+#    links:
+#      - pgdb
+#    environment:
+#          SPRING_DATASOURCE_URL:  jdbc:postgresql://postgres/postgres

@@ -40,3 +40,6 @@ create table courier_log
 
 alter table courier_log
     owner to postgres;
+
+alter table courier_log
+    add is_notify boolean default false not null;
